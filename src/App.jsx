@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
-// import initial tweets
-import tweets from '../data-files/tweets.js';
-// import other components
+// import initial messages
+import messages from '../data-files/messages.js';
+// import react components
 import ChatBar from './components/ChatBar.jsx';
 import MessageList from './components/MessageList.jsx';
 import Navbar from './components/Navbar.jsx';
+// import function module
 import { generateRandomId } from '../libs/tweet-functions.js';
 
 // function components
 const createLoadingPage = () => {
-  // initial loading page when tweets are unavailble
+  // initial loading page when messages are unavailble
   return (
     <section className='loadingPage'>
       <p>Loading...</p>
@@ -17,8 +18,8 @@ const createLoadingPage = () => {
   );
 }
 
-const createTweetComponents = (createNewMessage, { currentUser, messages }) => {
-  // initial tweets are available. add MessageList and ChatBar
+const createMsgComponents = (createNewMessage, { currentUser, messages }) => {
+  // initial messages are available => add MessageList and ChatBar
   // each array item needs unique key. pass the function as props to MessageList
   // createNewMessage is a function called when a user enters a new message
   return [
@@ -28,6 +29,7 @@ const createTweetComponents = (createNewMessage, { currentUser, messages }) => {
     />,
     <ChatBar
       key={generateRandomId()}
+      socket={this.state.socket}
       sendNewMessage={createNewMessage}
       currentUser={currentUser}
     />
@@ -41,37 +43,59 @@ export default class App extends Component {
     this.state = {
       loading: true,
       currentUser: '',
-      messages: []
+      messages: [],
+      socket: ''
     }
     // without the line below, `this` in renderMainPage() is undefined
+    this.loadMessages = this.loadMessages.bind(this);
+    this.connectToWebSocket = this.connectToWebSocket.bind(this);
     this.renderMainPage = this.renderMainPage.bind(this);
     this.sendNewMessage = this.sendNewMessage.bind(this);
+    this.tweet
   }
 
+  loadMessages() {
+    setTimeout(() => {
+      this.setState({
+        loading: false,
+        currentUser: messages.currentUser.name,
+        messages: messages.messages
+      })
+    }, 1000);
+  }
+  connectToWebSocket() {
+    const socket = new WebSocket('ws://localhost:3001');
+    socket.onopen = event => console.log('Connected to server');
+    // save the socket instance to state
+    this.setState({ socket });
+  }
+  // upon receiving messages, render the main page component
+  // message board + chat bar
   renderMainPage() {
     const { loading, currentUser, messages } = this.state;
     return (loading)
       ? createLoadingPage()
-      : createTweetComponents(this.sendNewMessage, { currentUser, messages });
+      : createMsgComponents(this.sendNewMessage, { currentUser, messages });
   }
-
   // function called when user enters a new message
-  // this function is passed to CHatbar.jsx
+  // this function is passed to Chatbar.jsx
   sendNewMessage({ username, message }) {
     const incomingMessage = {
       id: generateRandomId(),
       type: 'incomingMessage',
       content: message.value
     };
-    // if a new username was passed, change currentUser to the new username
+    // if user changed the username, update currentUser
     (username.value) && this.setState({
       currentUser: username.value
     });
-    // incomingMessage is owned by the new username if changed.
-    // otherwise, use the current username as the onwer
+    // determine the onwership of incomingMessage
+    // user changed the username => ownership: <new username>
+    // no username change => ownership: currentUser
     incomingMessage.username = username.value
       ? username.value
       : this.state.currentUser;
+
     this.setState({ messages: this.state.messages.concat(incomingMessage) });
   }
 
@@ -84,15 +108,10 @@ export default class App extends Component {
     );
   }
 
-  // componentDidMount() is called after the component was rendered and it was attached to the DOM
   componentDidMount() {
-    // mimic async api delay when importing tweets
-    setTimeout(() => {
-      this.setState({
-        loading: false,
-        currentUser: tweets.currentUser.name,
-        messages: tweets.messages
-      })
-    }, 1000);
+    // after all components were mounted, connect to the websocket (localhost:3001)
+    this.connectToWebSocket();
+    // mimic async api delay when importing messages
+    this.loadMessages();
   }
 }

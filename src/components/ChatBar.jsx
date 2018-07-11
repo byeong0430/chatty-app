@@ -14,6 +14,7 @@ export default class ChatBar extends Component {
 
   // update newMessate in this.state based on input value
   onMessageChange(event) {
+    console.log();
     this.setState({
       newMessage: event.target.value,
     })
