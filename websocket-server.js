@@ -9,15 +9,14 @@ const WebSocket = require('ws');
 const wss = new WebSocket.Server({ server });
 
 const handleClose = () => console.log('Client disconnected');
-const broadcastMessage = (client, data) => {
-  (client.readyState === WebSocket.OPEN) && client.send(data);
-}
 const handleMessage = data => {
   // Broadcast to everyone.
-  wss.clients.forEach(client => broadcastMessage(client, data));
+  wss.clients.forEach(client => {
+    (client.readyState === WebSocket.OPEN) && client.send(data)
+  });
 };
 const handleConnection = ws => {
-  console.log('Client connected');
+  console.log(`${wss.clients.size} client(s) connected`);
   ws.on('message', data => handleMessage(data));
   ws.on('close', handleClose);
 };
