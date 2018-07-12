@@ -14,20 +14,29 @@ const broadcast = data => {
     (client.readyState === WebSocket.OPEN) && client.send(data)
   });
 }
+const addColorToUsername = msg => {
+  // if msg type is postNotification, add a colour so that username colour's changed
+  const colors = ['red', 'blue', 'orange', 'green'];
+  const colorIndex = Math.floor(Math.random() * colors.length);
+  msg.color = colors[colorIndex];
+  return msg;
+};
 const changeItemType = msg => {
-  // parse json and change 'post' to 'incoming' in each type
-  const newData = JSON.parse(msg);
-  newData.type = newData.type.replace('post', 'incoming');
-  return JSON.stringify(newData);
+  // change 'post' to 'incoming' in each type
+  msg.type = msg.type.replace('post', 'incoming');
+  return msg;
 };
 const handleIncomingdata = data => {
-  const newData = changeItemType(data);
+  let newData = changeItemType(JSON.parse(data));
+  if (newData.type === 'incomingNotification') {
+    newData = addColorToUsername(newData);
+  }
   // Broadcast new messages to everyone.
-  broadcast(newData);
+  broadcast(JSON.stringify(newData));
 };
 const handleConnection = ws => {
   const clientCount = {
-    type: 'incomingClientCount',
+    type: 'incomingClient',
     onlineClientNum: wss.clients.size
   };
   console.log(`${clientCount.onlineClientNum} user(s) online`);
