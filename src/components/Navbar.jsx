@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 
 export default class Navbar extends Component {
   render() {
-    console.log(this.props.onlineClientNum);
+    const clientStatus = (this.props.onlineClientNum > 0) && `${this.props.onlineClientNum} users online`;
     return (
       <nav className="navbar" >
         <a href="/" className="navbar-brand">Chatty</a>
-        <span className='client-status'>{`${this.props.onlineClientNum} users online`}</span>
+        <span className='client-status'>{clientStatus}</span>
       </nav>
     );
   }
