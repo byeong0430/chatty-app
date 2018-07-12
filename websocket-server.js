@@ -9,14 +9,21 @@ const SocketServer = require('ws').Server;
 const wss = new SocketServer({ server });
 
 const handleClose = () => console.log('Client disconnected');
-// const handleMessage = event => console.log(event);
+const handleIncomingMsg = ws => {
+  return new Promise(resolve => {
+    ws.on('message', msg => {
+      resolve(msg);
+    })
+  })
+}
+const handleMessages = async ws => {
+  const incomingMessage = await handleIncomingMsg(ws);
+  ws.send(incomingMessage);
+};
+
 const handleConnection = ws => {
   console.log('Client connected');
-
-  ws.on('message', msg => {
-    console.log(msg);
-  });
-
+  handleMessages(ws);
   ws.on('close', handleClose);
 };
 
