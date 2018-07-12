@@ -5,7 +5,7 @@ import messages from '../data-files/messages.js';
 import ChatBar from './components/ChatBar.jsx';
 import MessageList from './components/MessageList.jsx';
 import Navbar from './components/Navbar.jsx';
-// import npm packages
+// import npm package
 import uuidv4 from 'uuid/v4';
 
 // function components
@@ -18,27 +18,50 @@ const createLoadingPage = () => {
   );
 }
 
+// when initial messages are ready, return message list and chatbar
+const createMsgComponents = (createNewMessage, { currentUser, messages }) => {
+  return [
+    <MessageList
+      key={uuidv4()}
+      messages={messages}
+    />,
+    <ChatBar
+      key={uuidv4()}
+      sendNewMessage={createNewMessage}
+      currentUser={currentUser}
+    />
+  ];
+}
+
 export default class App extends Component {
   constructor(props) {
     super(props);
-    // set initial loading status to true
+    // initial state
     this.state = {
       loading: true,
       currentUser: '',
-      messages: [],
-      socket: ''
+      messages: []
     }
-    this.socket = new WebSocket('ws://localhost:3001');
-    // without the line below, `this` in renderMainPage() is undefined
-    this.loadMessages = this.loadMessages.bind(this);
-    this.createMsgComponents = this.createMsgComponents.bind(this);
-    this.renderMainPage = this.renderMainPage.bind(this);
-    this.receiveMessage = this.receiveMessage.bind(this);
-    this.sendNewMessage = this.sendNewMessage.bind(this);
-    this.handleNewMessage = this.handleNewMessage.bind(this);
-  }
+    this.socket = new WebSocket(`ws://localhost:3001`);
 
-  loadMessages() {
+    // bind functions to this class
+    this.connectToWss = this.connectToWss.bind(this);
+    this.loadInitialMessages = this.loadInitialMessages.bind(this);
+    this.renderMainPage = this.renderMainPage.bind(this);
+    this.sendNewMessage = this.sendNewMessage.bind(this);
+    this.receiveBroadcastMessage = this.receiveBroadcastMessage.bind(this);
+    this.handleWssMessage = this.handleWssMessage.bind(this);
+  }
+  // wss: web socket server
+  connectToWss() {
+    return new Promise(resolve => {
+      this.socket.onopen = () => {
+        console.log('Connected to ws server');
+        resolve();
+      };
+    });
+  }
+  loadInitialMessages() {
     setTimeout(() => {
       this.setState({
         loading: false,
@@ -47,67 +70,48 @@ export default class App extends Component {
       })
     }, 1000);
   }
-  createMsgComponents(createNewMessage, { currentUser, messages }) {
-    // initial messages are available => add MessageList and ChatBar
-    // each array item needs unique key. pass the function as props to MessageList
-    // createNewMessage is a function called when a user enters a new message
-    return [
-      <MessageList
-        key={uuidv4()}
-        messages={messages}
-      />,
-      <ChatBar
-        key={uuidv4()}
-        handleNewMessage={createNewMessage}
-        currentUser={currentUser}
-      />
-    ];
-  }
-  // upon receiving messages, render the main page component
-  // message board + chat bar
+  // when initial messages are unavailable, display the loading page
+  // when they're ready, render the main page component (message list and chatbar)
   renderMainPage() {
     const { loading, currentUser, messages } = this.state;
     return (loading)
       ? createLoadingPage()
-      : this.createMsgComponents(this.handleNewMessage, { currentUser, messages });
-  }
-  receiveMessage() {
-    return new Promise(resolve => {
-      this.socket.addEventListener('message', event => {
-        resolve(event.data);
-      });
-    })
+      : createMsgComponents(this.sendNewMessage, { currentUser, messages });
   }
   sendNewMessage({ username, message }) {
+    // prepare incoming message object
+    const incomingMessage = {
+      id: uuidv4(),
+      type: 'incomingMessage',
+      content: message.value
+    };
+    // if user changed the username, ownership of incomingMessage = <new username>
+    // if username not changed, ownership of incomingMessage = currentUser
+    incomingMessage.username = username.value
+      ? username.value
+      : this.state.currentUser;
+    // send the new message to the web socket server
+    // make sure to convert obj to json before sending it
+    this.socket.send(JSON.stringify({ incomingMessage }));
+    console.log('Message sent');
+  }
+  // receive message back from the web socket server
+  receiveBroadcastMessage() {
     return new Promise(resolve => {
-      const incomingMessage = {
-        id: uuidv4(),
-        type: 'incomingMessage',
-        content: message.value
+      this.socket.onmessage = event => {
+        // convert json broadcast message to obj
+        const broadcastMessage = JSON.parse(event.data).incomingMessage;
+        // concatenate broadcast message with the existing messages
+        const messages = this.state.messages.concat(broadcastMessage);
+        this.setState({ messages });
       };
-
-      incomingMessage.username = username.value
-        ? username.value
-        : this.state.currentUser;
-
-      // send the new message to the web socket server
-      this.socket.send(JSON.stringify({ incomingMessage }));
-      console.log('Message sent');
-      resolve();
-    })
+      resolve('message updated');
+    });
   }
-  // function called when user enters a new message
-  // this function is passed to Chatbar.jsx
-  async handleNewMessage(msg) {
-    await this.sendNewMessage(msg);
-    // receive the message back from the web socket server
-    const broadcastMsg = await this.receiveMessage();
-    const messages = this.state.messages.concat(
-      JSON.parse(broadcastMsg).incomingMessage
-    );
-    this.setState({ messages });
+  async handleWssMessage() {
+    await this.connectToWss();
+    await this.receiveBroadcastMessage();
   }
-
 
   render() {
     return (
@@ -119,9 +123,10 @@ export default class App extends Component {
   }
 
   componentDidMount() {
-    // after all components were mounted, connect to the websocket (localhost:3001)
-    this.socket.addEventListener('open', () => console.log('Connected to server'));
+    // connect ws server and handle broadcast messages
+    // IMPORTANT: socket.onmessage() must be within componentDidMount()
+    this.handleWssMessage();
     // mimic async api delay when importing messages
-    this.loadMessages();
+    this.loadInitialMessages();
   }
 }
