@@ -16,10 +16,8 @@ const broadcast = data => {
 }
 const changeItemType = msg => {
   // parse json and change 'post' to 'incoming' in each type
-  const newData = JSON.parse(msg).map(item => {
-    item.type = item.type.replace('post', 'incoming');
-    return item;
-  });
+  const newData = JSON.parse(msg);
+  newData.type = newData.type.replace('post', 'incoming');
   return JSON.stringify(newData);
 };
 const handleIncomingdata = data => {
