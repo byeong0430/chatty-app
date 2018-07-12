@@ -10,7 +10,7 @@ const wss = new WebSocket.Server({ server });
 
 const handleClose = () => console.log('Client disconnected');
 const broadcastMessage = (client, data) => {
-  client.readyState === WebSocket.OPEN && client.send(data);
+  (client.readyState === WebSocket.OPEN) && client.send(data);
 }
 const handleMessage = data => {
   // Broadcast to everyone.
