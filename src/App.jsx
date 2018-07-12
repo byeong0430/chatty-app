@@ -87,6 +87,12 @@ export default class App extends Component {
     };
     // if user changed the username, ownership of incomingMessage = <new username>
     // if username not changed, ownership of incomingMessage = currentUser
+    if (username.value) {
+      incomingMessage.username = username.value;
+      this.setState({ currentUser: username.value });
+    } else {
+      incomingMessage.username = this.state.currentUser;
+    }
     incomingMessage.username = username.value
       ? username.value
       : this.state.currentUser;
