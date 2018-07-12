@@ -80,49 +80,45 @@ export default class App extends Component {
       ? createLoadingPage()
       : createMsgComponents(this.sendNewMessage, { currentUser, messages });
   }
-  sendNewMessage({ username, message }) {
-    // prepare incoming message object
-    const id = uuidv4();
-    const newData = [];
-    const newMessage = {
-      id,
-      type: 'postMessage',
-      content: message.value
-    };
-    // if user changed the username, ownership of incomingMessage = <new username>
-    // if username not changed, ownership of incomingMessage = currentUser
-    if (username.value) {
-      newMessage.username = username.value;
+  sendNewMessage(message) {
+    // give each message unique id
+    message.id = uuidv4();
+    if (message.type === 'postNotification') {
       // change currentUser to the new username
-      this.setState({ currentUser: username.value });
-      // also constructor new notification of the username change
-      const newNotification = {
-        id: uuidv4(),
-        type: 'postNotification',
-        content: `${this.state.currentUser} changed their name to ${username.value}`,
-        referenceTo: id
-      }
-      newData.push(newNotification);
-    } else {
-      newMessage.username = this.state.currentUser;
+      this.setState({ currentUser: message.content });
+      // if user changed the username, ownership of incomingMessage = <new username>
+      message.content = `${this.state.currentUser} changed their name to ${message.content}`;
     }
-    newData.push(newMessage);
     // send the new message to the web socket server. make sure to convert obj to json before sending it
-    this.socket.send(JSON.stringify(newData));
+    this.socket.send(JSON.stringify(message));
     console.log('Message sent');
   }
   // receive message back from the web socket server
   receiveBroadcastMessage() {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       this.socket.onmessage = event => {
         // convert json broadcast message to obj
-        const broadcastMessages = JSON.parse(event.data);
-        if (broadcastMessages.type === 'incomingClientCount') {
-          this.setState({ onlineClientNum: broadcastMessages.onlineClientNum });
-        } else {
-          // concatenate broadcast message with the existing messages
-          const messages = this.state.messages.concat(broadcastMessages);
-          this.setState({ messages });
+        const broadcastMessage = JSON.parse(event.data);
+        switch (broadcastMessage.type) {
+          case 'incomingClientCount':
+            this.setState({
+              onlineClientNum: broadcastMessage.onlineClientNum
+            });
+            break;
+          case 'incomingMessage':
+            // concatenate broadcast message with the existing messages
+            this.setState({
+              messages: this.state.messages.concat(broadcastMessage)
+            });
+            break;
+          case 'incomingNotification':
+            // concatenate broadcast message with the existing messages
+            this.setState({
+              messages: this.state.messages.concat(broadcastMessage)
+            });
+            break;
+          default:
+            reject(`Unknown data type ${broadcastMessage.type}`)
         }
       };
       resolve('message updated');
@@ -136,7 +132,7 @@ export default class App extends Component {
   render() {
     return (
       <div>
-        <Navbar />
+        <Navbar onlineClientNum={this.state.onlineClientNum} />
         {this.renderMainPage()}
       </div>
     );
