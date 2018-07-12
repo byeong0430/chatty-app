@@ -14,16 +14,13 @@ export default class ChatBar extends Component {
 
   // update newMessate in this.state based on input value
   onMessageChange(event) {
-    console.log();
-    this.setState({
-      newMessage: event.target.value,
-    })
+    this.setState({newMessage: event.target.value});
   }
   // validate form parameters before sending them back to app.jsx
   validateForm(event) {
     event.preventDefault();
     (event.target.message.value.trim()) && (
-      this.props.sendNewMessage(event.target),
+      this.props.handleNewMessage(event.target),
       // reset current message to ''
       this.setState({ newMessage: '' })
     );
