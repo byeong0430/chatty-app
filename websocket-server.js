@@ -5,27 +5,21 @@ const server = express()
   .listen(PORT, '0.0.0.0', 'localhost',
     () => console.log(`Listening to ${PORT}`));
 
-const SocketServer = require('ws').Server;
-const wss = new SocketServer({ server });
+const WebSocket = require('ws');
+const wss = new WebSocket.Server({ server });
 
 const handleClose = () => console.log('Client disconnected');
-const handleIncomingMsg = ws => {
-  return new Promise(resolve => {
-    ws.on('message', msg => {
-      resolve(msg);
-    })
-  })
+const broadcastMessage = (client, data) => {
+  client.readyState === WebSocket.OPEN && client.send(data);
 }
-const handleMessages = async ws => {
-  const incomingMessage = await handleIncomingMsg(ws);
-  ws.send(incomingMessage);
+const handleMessage = data => {
+  // Broadcast to everyone.
+  wss.clients.forEach(client => broadcastMessage(client, data));
 };
-
 const handleConnection = ws => {
   console.log('Client connected');
-  handleMessages(ws);
+  ws.on('message', data => handleMessage(data));
   ws.on('close', handleClose);
 };
 
 wss.on('connection', handleConnection);
-
