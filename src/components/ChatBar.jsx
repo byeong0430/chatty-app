@@ -20,7 +20,7 @@ export default class ChatBar extends Component {
   validateForm(event) {
     event.preventDefault();
     (event.target.message.value.trim()) && (
-      this.props.handleNewMessage(event.target),
+      this.props.sendNewMessage(event.target),
       // reset current message to ''
       this.setState({ newMessage: '' })
     );
