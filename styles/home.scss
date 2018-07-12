@@ -73,16 +73,21 @@ body {
   position: fixed;
   right: 0;
   top: 0;
-}
-
-.navbar-brand {
-  color: inherit;
-  display: block;
-  float: left;
-  font-weight: 700;
-  font-size: 28px;
-  height: 60px;
-  line-height: 60px;
-  padding: 0 10px;
-  text-decoration: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  .navbar-brand {
+    color: inherit;
+    display: block;
+    float: left;
+    font-weight: 700;
+    font-size: 28px;
+    height: 60px;
+    line-height: 60px;
+    padding: 0 10px;
+    text-decoration: none;
+  }
+  .client-status {
+    font-size: 20px;
+  }
 }
