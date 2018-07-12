@@ -83,29 +83,29 @@ export default class App extends Component {
     // prepare incoming message object
     const id = uuidv4();
     const newData = [];
-    const incomingMessage = {
+    const newMessage = {
       id,
-      type: 'incomingMessage',
+      type: 'postMessage',
       content: message.value
     };
     // if user changed the username, ownership of incomingMessage = <new username>
     // if username not changed, ownership of incomingMessage = currentUser
     if (username.value) {
-      incomingMessage.username = username.value;
+      newMessage.username = username.value;
       // change currentUser to the new username
       this.setState({ currentUser: username.value });
       // also constructor new notification of the username change
-      const incomingNotification = {
+      const newNotification = {
         id: uuidv4(),
-        type: 'incomingNotification',
+        type: 'postNotification',
         content: `${this.state.currentUser} changed their name to ${username.value}`,
         referenceTo: id
       }
-      newData.push(incomingNotification);
+      newData.push(newNotification);
     } else {
-      incomingMessage.username = this.state.currentUser;
+      newMessage.username = this.state.currentUser;
     }
-    newData.push(incomingMessage);
+    newData.push(newMessage);
     // send the new message to the web socket server. make sure to convert obj to json before sending it
     this.socket.send(JSON.stringify(newData));
     console.log('Message sent');
