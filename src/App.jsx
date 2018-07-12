@@ -5,8 +5,8 @@ import messages from '../data-files/messages.js';
 import ChatBar from './components/ChatBar.jsx';
 import MessageList from './components/MessageList.jsx';
 import Navbar from './components/Navbar.jsx';
-// import function module
-import { generateRandomId } from '../libs/tweet-functions.js';
+// import npm packages
+import uuidv4 from 'uuid/v4';
 
 // function components
 const createLoadingPage = () => {
@@ -16,24 +16,6 @@ const createLoadingPage = () => {
       <p>Loading...</p>
     </section>
   );
-}
-
-const createMsgComponents = (createNewMessage, { currentUser, messages }) => {
-  // initial messages are available => add MessageList and ChatBar
-  // each array item needs unique key. pass the function as props to MessageList
-  // createNewMessage is a function called when a user enters a new message
-  return [
-    <MessageList
-      key={generateRandomId()}
-      messages={messages}
-    />,
-    <ChatBar
-      key={generateRandomId()}
-      socket={this.state.socket}
-      sendNewMessage={createNewMessage}
-      currentUser={currentUser}
-    />
-  ];
 }
 
 export default class App extends Component {
@@ -46,12 +28,14 @@ export default class App extends Component {
       messages: [],
       socket: ''
     }
+    this.socket = new WebSocket('ws://localhost:3001');
     // without the line below, `this` in renderMainPage() is undefined
     this.loadMessages = this.loadMessages.bind(this);
-    this.connectToWebSocket = this.connectToWebSocket.bind(this);
+    this.createMsgComponents = this.createMsgComponents.bind(this);
     this.renderMainPage = this.renderMainPage.bind(this);
+    this.receiveMessage = this.receiveMessage.bind(this);
     this.sendNewMessage = this.sendNewMessage.bind(this);
-    this.tweet
+    this.handleNewMessage = this.handleNewMessage.bind(this);
   }
 
   loadMessages() {
@@ -63,11 +47,21 @@ export default class App extends Component {
       })
     }, 1000);
   }
-  connectToWebSocket() {
-    const socket = new WebSocket('ws://localhost:3001');
-    socket.onopen = event => console.log('Connected to server');
-    // save the socket instance to state
-    this.setState({ socket });
+  createMsgComponents(createNewMessage, { currentUser, messages }) {
+    // initial messages are available => add MessageList and ChatBar
+    // each array item needs unique key. pass the function as props to MessageList
+    // createNewMessage is a function called when a user enters a new message
+    return [
+      <MessageList
+        key={uuidv4()}
+        messages={messages}
+      />,
+      <ChatBar
+        key={uuidv4()}
+        handleNewMessage={createNewMessage}
+        currentUser={currentUser}
+      />
+    ];
   }
   // upon receiving messages, render the main page component
   // message board + chat bar
@@ -75,29 +69,45 @@ export default class App extends Component {
     const { loading, currentUser, messages } = this.state;
     return (loading)
       ? createLoadingPage()
-      : createMsgComponents(this.sendNewMessage, { currentUser, messages });
+      : this.createMsgComponents(this.handleNewMessage, { currentUser, messages });
+  }
+  receiveMessage() {
+    return new Promise(resolve => {
+      this.socket.addEventListener('message', event => {
+        resolve(event.data);
+      });
+    })
+  }
+  sendNewMessage({ username, message }) {
+    return new Promise(resolve => {
+      const incomingMessage = {
+        id: uuidv4(),
+        type: 'incomingMessage',
+        content: message.value
+      };
+
+      incomingMessage.username = username.value
+        ? username.value
+        : this.state.currentUser;
+
+      // send the new message to the web socket server
+      this.socket.send(JSON.stringify({ incomingMessage }));
+      console.log('Message sent');
+      resolve();
+    })
   }
   // function called when user enters a new message
   // this function is passed to Chatbar.jsx
-  sendNewMessage({ username, message }) {
-    const incomingMessage = {
-      id: generateRandomId(),
-      type: 'incomingMessage',
-      content: message.value
-    };
-    // if user changed the username, update currentUser
-    (username.value) && this.setState({
-      currentUser: username.value
-    });
-    // determine the onwership of incomingMessage
-    // user changed the username => ownership: <new username>
-    // no username change => ownership: currentUser
-    incomingMessage.username = username.value
-      ? username.value
-      : this.state.currentUser;
-
-    this.setState({ messages: this.state.messages.concat(incomingMessage) });
+  async handleNewMessage(msg) {
+    await this.sendNewMessage(msg);
+    // receive the message back from the web socket server
+    const broadcastMsg = await this.receiveMessage();
+    const messages = this.state.messages.concat(
+      JSON.parse(broadcastMsg).incomingMessage
+    );
+    this.setState({ messages });
   }
+
 
   render() {
     return (
@@ -110,7 +120,7 @@ export default class App extends Component {
 
   componentDidMount() {
     // after all components were mounted, connect to the websocket (localhost:3001)
-    this.connectToWebSocket();
+    this.socket.addEventListener('open', () => console.log('Connected to server'));
     // mimic async api delay when importing messages
     this.loadMessages();
   }
