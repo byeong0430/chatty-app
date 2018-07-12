@@ -41,7 +41,8 @@ export default class App extends Component {
     this.state = {
       loading: true,
       currentUser: '',
-      messages: []
+      messages: [],
+      onlineClientNum: 0
     }
     this.socket = new WebSocket(`ws://localhost:3001`);
 
@@ -116,9 +117,13 @@ export default class App extends Component {
       this.socket.onmessage = event => {
         // convert json broadcast message to obj
         const broadcastMessages = JSON.parse(event.data);
-        // concatenate broadcast message with the existing messages
-        const messages = this.state.messages.concat(broadcastMessages);
-        this.setState({ messages });
+        if (broadcastMessages.type === 'incomingClientCount') {
+          this.setState({ onlineClientNum: broadcastMessages.onlineClientNum });
+        } else {
+          // concatenate broadcast message with the existing messages
+          const messages = this.state.messages.concat(broadcastMessages);
+          this.setState({ messages });
+        }
       };
       resolve('message updated');
     });

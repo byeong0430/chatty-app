@@ -9,6 +9,11 @@ const WebSocket = require('ws');
 const wss = new WebSocket.Server({ server });
 
 const handleClose = () => console.log('Client disconnected');
+const broadcast = data => {
+  wss.clients.forEach(client => {
+    (client.readyState === WebSocket.OPEN) && client.send(data)
+  });
+}
 const changeItemType = msg => {
   // parse json and change 'post' to 'incoming' in each type
   const newData = JSON.parse(msg).map(item => {
@@ -17,16 +22,20 @@ const changeItemType = msg => {
   });
   return JSON.stringify(newData);
 };
-const broadcastMessage = data => {
+const handleIncomingdata = data => {
   const newData = changeItemType(data);
-  // Broadcast to everyone.
-  wss.clients.forEach(client => {
-    (client.readyState === WebSocket.OPEN) && client.send(newData)
-  });
+  // Broadcast new messages to everyone.
+  broadcast(newData);
 };
 const handleConnection = ws => {
-  console.log(`${wss.clients.size} client(s) connected`);
-  ws.on('message', data => broadcastMessage(data));
+  const clientCount = {
+    type: 'incomingClientCount',
+    onlineClientNum: wss.clients.size
+  };
+  console.log(`${clientCount.onlineClientNum} user(s) online`);
+  // Broadcast the total number of clients
+  broadcast(JSON.stringify(clientCount));
+  ws.on('message', data => handleIncomingdata(data));
   ws.on('close', handleClose);
 };
 
