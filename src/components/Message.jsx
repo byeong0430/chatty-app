@@ -6,11 +6,9 @@ export default class Message extends Component {
     this.displayMsg = this.displayMsg.bind(this);
   }
   displayMsg() {
-    const { alert, message: { username, content } } = this.props;
-    const alertMsg = alert.map(alertItem => <div className="message system">{alertItem.content}</div>)
+    const { message: { username, content } } = this.props;
     return (
       <div>
-        {alertMsg}
         <div className="message">
           <span className="message-username">{username}</span>
           <span className="message-content">{content}</span>
