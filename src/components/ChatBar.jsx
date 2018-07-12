@@ -10,11 +10,11 @@ export default class ChatBar extends Component {
     }
     this.onMessageChange = this.onMessageChange.bind(this);
     this.validateForm = this.validateForm.bind(this);
+    this.makeForm = this.makeForm.bind(this);
   }
-
   // update newMessate in this.state based on input value
   onMessageChange(event) {
-    this.setState({newMessage: event.target.value});
+    this.setState({ newMessage: event.target.value });
   }
   // validate form parameters before sending them back to app.jsx
   validateForm(event) {
@@ -25,32 +25,35 @@ export default class ChatBar extends Component {
       this.setState({ newMessage: '' })
     );
   }
-
-  render() {
+  makeForm() {
     const { newMessage, placeholder } = this.state;
     return (
+      <form onSubmit={this.validateForm}>
+        <input
+          type='text'
+          name='username'
+          className="chatbar-username"
+          placeholder={this.props.currentUser}
+        />
+        <input
+          type='text'
+          name='message'
+          className="chatbar-message"
+          placeholder={placeholder}
+          onChange={this.onMessageChange}
+          value={newMessage}
+        />
+        <input type='submit' id='submit-tweet' />
+      </form>
+    );
+  }
+  render() {
+    return (
       <footer className="chatbar">
-        <form onSubmit={this.validateForm}>
-          <input
-            type='text'
-            name='username'
-            className="chatbar-username"
-            placeholder={this.props.currentUser}
-          />
-          <input
-            type='text'
-            name='message'
-            className="chatbar-message"
-            placeholder={placeholder}
-            onChange={this.onMessageChange}
-            value={newMessage}
-          />
-          <input type='submit' id='submit-tweet' />
-        </form>
+        <this.makeForm />
       </footer >
     );
   }
-
   componentDidMount() {
     // submit the form when enter key is detected on input[name="message"]
     addEnterKey('input[name="message"]', 'submit-tweet');
