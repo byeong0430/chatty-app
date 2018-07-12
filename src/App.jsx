@@ -24,6 +24,7 @@ const createMsgComponents = (createNewMessage, { currentUser, messages }) => {
     <MessageList
       key={uuidv4()}
       messages={messages}
+      currentUser={currentUser}
     />,
     <ChatBar
       key={uuidv4()}
@@ -80,8 +81,10 @@ export default class App extends Component {
   }
   sendNewMessage({ username, message }) {
     // prepare incoming message object
+    const id = uuidv4();
+    const newData = [];
     const incomingMessage = {
-      id: uuidv4(),
+      id,
       type: 'incomingMessage',
       content: message.value
     };
@@ -89,16 +92,22 @@ export default class App extends Component {
     // if username not changed, ownership of incomingMessage = currentUser
     if (username.value) {
       incomingMessage.username = username.value;
+      // change currentUser to the new username
       this.setState({ currentUser: username.value });
+      // also constructor new notification of the username change
+      const incomingNotification = {
+        id: uuidv4(),
+        type: 'incomingNotification',
+        content: `${this.state.currentUser} changed their name to ${username.value}`,
+        referenceTo: id
+      }
+      newData.push(incomingNotification);
     } else {
       incomingMessage.username = this.state.currentUser;
     }
-    incomingMessage.username = username.value
-      ? username.value
-      : this.state.currentUser;
-    // send the new message to the web socket server
-    // make sure to convert obj to json before sending it
-    this.socket.send(JSON.stringify({ incomingMessage }));
+    newData.push(incomingMessage);
+    // send the new message to the web socket server. make sure to convert obj to json before sending it
+    this.socket.send(JSON.stringify(newData));
     console.log('Message sent');
   }
   // receive message back from the web socket server
@@ -106,9 +115,9 @@ export default class App extends Component {
     return new Promise(resolve => {
       this.socket.onmessage = event => {
         // convert json broadcast message to obj
-        const broadcastMessage = JSON.parse(event.data).incomingMessage;
+        const broadcastMessages = JSON.parse(event.data);
         // concatenate broadcast message with the existing messages
-        const messages = this.state.messages.concat(broadcastMessage);
+        const messages = this.state.messages.concat(broadcastMessages);
         this.setState({ messages });
       };
       resolve('message updated');
