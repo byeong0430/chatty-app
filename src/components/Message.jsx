@@ -5,11 +5,12 @@ export default class Message extends Component {
     super(props);
   }
   displayMsg = () => {
-    const { message: { username, content } } = this.props;
+    const { currentUser: { name, color }, message: { username, content } } = this.props;
+    const style = (name === username) ? { color } : null;
     return (
       <div>
         <div className="message">
-          <span className="message-username">{username}</span>
+          <span style={style} className="message-username">{username}</span>
           <span className="message-content">{content}</span>
         </div>
       </div>

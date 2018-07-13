@@ -28,7 +28,7 @@ export default class ChatBar extends Component {
         content: message.value,
         username: (username.value.trim())
           ? username.value
-          : this.props.currentUser
+          : this.props.currentUser.name
       }),
       // reset current message to ''
       this.setState({ newMessage: '' })

@@ -3,8 +3,9 @@ import Message from './Message.jsx';
 
 export default class MessageList extends Component {
   createMessages() {
-    return this.props.messages.map(message => {
-      return <Message key={message.id} message={message} />
+    const { currentUser, messages } = this.props;
+    return messages.map(message => {
+      return <Message key={message.id} currentUser={currentUser} message={message} />
     })
   }
   render() {
