@@ -46,16 +46,10 @@ export default class App extends Component {
     }
     this.socket = new WebSocket(`ws://localhost:3001`);
 
-    // bind functions to this class
-    this.connectToWss = this.connectToWss.bind(this);
-    this.loadInitialMessages = this.loadInitialMessages.bind(this);
-    this.renderMainPage = this.renderMainPage.bind(this);
-    this.sendNewMessage = this.sendNewMessage.bind(this);
-    this.receiveBroadcastMessage = this.receiveBroadcastMessage.bind(this);
-    this.handleWssMessage = this.handleWssMessage.bind(this);
+    // bind functions to this class unless you're using the ES6 style arrow
   }
   // wss: web socket server
-  connectToWss() {
+  connectToWss = () => {
     return new Promise(resolve => {
       this.socket.onopen = () => {
         console.log('Connected to ws server');
@@ -63,7 +57,7 @@ export default class App extends Component {
       };
     });
   }
-  loadInitialMessages() {
+  loadInitialMessages = () => {
     setTimeout(() => {
       this.setState({
         loading: false,
@@ -74,13 +68,13 @@ export default class App extends Component {
   }
   // when initial messages are unavailable, display the loading page
   // when they're ready, render the main page component (message list and chatbar)
-  renderMainPage() {
+  renderMainPage = () => {
     const { loading, currentUser, messages } = this.state;
     return (loading)
       ? createLoadingPage()
       : createMsgComponents(this.sendNewMessage, { currentUser, messages });
   }
-  sendNewMessage(message) {
+  sendNewMessage = message => {
     // give each message unique id
     message.id = uuidv4();
     if (message.type === 'postNotification') {
@@ -94,7 +88,7 @@ export default class App extends Component {
     console.log('Message sent');
   }
   // receive message back from the web socket server
-  receiveBroadcastMessage() {
+  receiveBroadcastMessage = () => {
     return new Promise((resolve, reject) => {
       this.socket.onmessage = event => {
         // convert json broadcast message to obj
@@ -124,7 +118,7 @@ export default class App extends Component {
       resolve('message updated');
     });
   }
-  async handleWssMessage() {
+  handleWssMessage = async () => {
     await this.connectToWss();
     await this.receiveBroadcastMessage();
   }
