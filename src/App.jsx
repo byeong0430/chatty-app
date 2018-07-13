@@ -51,7 +51,8 @@ export default class App extends Component {
       messages: [],
       onlineClientNum: 0
     }
-    this.socket = new WebSocket(`ws://localhost:3001`);
+    // dynamically set websocket host
+    this.socket = new WebSocket(`ws://${window.location.hostname}:3001`);
 
     // bind functions to this class unless you're using the ES6 style arrow
   }
