@@ -19,9 +19,9 @@ const addColor = () => {
 const createLoadingPage = () => {
   // initial loading page when messages are unavailble
   return (
-    <section className='loadingPage'>
+    <main className='loading-page'>
       <p>Loading...</p>
-    </section>
+    </main>
   );
 }
 
@@ -143,7 +143,7 @@ export default class App extends Component {
 
   render() {
     return (
-      <div>
+      <div className='container'>
         <Navbar onlineClientNum={this.state.onlineClientNum} />
         {this.renderMainPage()}
       </div>
