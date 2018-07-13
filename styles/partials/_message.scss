@@ -2,7 +2,8 @@ main.messages {
   background: white;
   font-family: $message-username-font;
   height: 80vh;
-  padding: $main-padding;
+  padding: 1rem 0;
+  overflow: auto;
   div.message {
     margin-bottom: 1.1em;
   }
@@ -13,7 +14,6 @@ main.messages {
     margin-top: 0.3em;
   }
   div.notification {
-    padding-left: 25%;
     font-style: italic;
   }
 }
