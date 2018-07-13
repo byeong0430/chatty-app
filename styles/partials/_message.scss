@@ -1,9 +1,19 @@
 main.messages {
   background: white;
-  height: 90vh;
-  padding: 1rem 1rem;
-  span.message-username {
-    margin-right: 3rem;
+  font-family: $message-username-font;
+  height: 80vh;
+  padding: $main-padding;
+  div.message {
+    margin-bottom: 1.1em;
   }
-  spsan.message-content {}
+  div.message-username {
+    font-weight: bold;
+  }
+  div.message-content {
+    margin-top: 0.3em;
+  }
+  div.notification {
+    padding-left: 25%;
+    font-style: italic;
+  }
 }
