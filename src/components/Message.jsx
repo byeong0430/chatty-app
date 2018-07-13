@@ -3,9 +3,8 @@ import React, { Component } from 'react';
 export default class Message extends Component {
   constructor(props) {
     super(props);
-    this.displayMsg = this.displayMsg.bind(this);
   }
-  displayMsg() {
+  displayMsg = () => {
     const { message: { username, content } } = this.props;
     return (
       <div>

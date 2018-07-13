@@ -9,20 +9,16 @@ export default class ChatBar extends Component {
       username: '',
       placeholder: 'Type a message and hit ENTER'
     }
-    this.onMessageChange = this.onMessageChange.bind(this);
-    this.onUsernameChange = this.onUsernameChange.bind(this);
-    this.validateForm = this.validateForm.bind(this);
-    this.makeForm = this.makeForm.bind(this);
   }
   // update newMessate in this.state based on input value
-  onUsernameChange(event) {
+  onUsernameChange = event => {
     this.setState({ username: event.target.value });
   }
-  onMessageChange(event) {
+  onMessageChange = event => {
     this.setState({ newMessage: event.target.value });
   }
   // validate form parameters before sending them back to app.jsx
-  validateForm(event) {
+  validateForm = event => {
     event.preventDefault();
     const { message, username } = event.target;
     // there is a valid message
@@ -46,7 +42,7 @@ export default class ChatBar extends Component {
       this.setState({ username: '' })
     );
   }
-  makeForm() {
+  makeForm = () => {
     const { newMessage, placeholder } = this.state;
     return (
       <form onSubmit={this.validateForm}>
@@ -54,7 +50,7 @@ export default class ChatBar extends Component {
           type='text'
           name='username'
           className="chatbar-username"
-          placeholder={this.props.currentUser}
+          placeholder={this.props.currentUser.name}
           onChange={this.onUsernameChange}
           value={this.state.username}
         />

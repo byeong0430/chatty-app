@@ -14,13 +14,6 @@ const broadcast = data => {
     (client.readyState === WebSocket.OPEN) && client.send(data)
   });
 }
-const addColorToUsername = msg => {
-  // if msg type is postNotification, add a colour so that username colour's changed
-  const colors = ['red', 'blue', 'orange', 'green'];
-  const colorIndex = Math.floor(Math.random() * colors.length);
-  msg.color = colors[colorIndex];
-  return msg;
-};
 const changeItemType = msg => {
   // change 'post' to 'incoming' in each type
   msg.type = msg.type.replace('post', 'incoming');
@@ -28,9 +21,6 @@ const changeItemType = msg => {
 };
 const handleIncomingdata = data => {
   let newData = changeItemType(JSON.parse(data));
-  if (newData.type === 'incomingNotification') {
-    newData = addColorToUsername(newData);
-  }
   // Broadcast new messages to everyone.
   broadcast(JSON.stringify(newData));
 };

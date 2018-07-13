@@ -18,6 +18,13 @@ const createLoadingPage = () => {
   );
 }
 
+const addColor = () => {
+  // if msg type is postNotification, add a colour so that username colour's changed
+  const colors = ['red', 'blue', 'orange', 'green'];
+  const colorIndex = Math.floor(Math.random() * colors.length);
+  return colors[colorIndex];
+};
+
 // when initial messages are ready, return message list and chatbar
 const createMsgComponents = (createNewMessage, { currentUser, messages }) => {
   return [
@@ -40,7 +47,7 @@ export default class App extends Component {
     // initial state
     this.state = {
       loading: true,
-      currentUser: '',
+      currentUser: {},
       messages: [],
       onlineClientNum: 0
     }
@@ -61,7 +68,10 @@ export default class App extends Component {
     setTimeout(() => {
       this.setState({
         loading: false,
-        currentUser: messages.currentUser.name,
+        currentUser: {
+          name: messages.currentUser.name,
+          color: addColor()
+        },
         messages: messages.messages
       })
     }, 1000);
