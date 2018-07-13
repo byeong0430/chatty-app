@@ -84,12 +84,11 @@ export default class App extends Component {
   }
   // update currentUser in this.state
   updateCurrentUser = message => {
-    // first get each element of currentUser from this.state
-    const currentUser = { ...this.state.currentUser };
-    // then change the currentUser name
-    currentUser.name = message.content;
-    // setState with the new data
-    this.setState({ currentUser });
+    const newUsername = message.content;
+    this.setState(oldState => {
+      oldState.currentUser.name = newUsername;
+      return oldState;
+    })
   }
   handleNotification = msg => {
     // first, update currentUser in this.state
@@ -120,17 +119,18 @@ export default class App extends Component {
             });
             break;
           case 'incomingMessage':
-            // concatenate broadcast message with the existing messages
-            this.setState({
-              messages: this.state.messages.concat(broadcastMessage)
-            });
+            // add broadcast messages to the state
+            this.setState(oldState => {
+              const messages = [...oldState.messages, broadcastMessage];
+              return { ...oldState, messages };
+            })
             break;
           case 'incomingNotification':
-            // concatenate broadcast message with the existing messages
-            this.setState({
-              messages: this.state.messages.concat(broadcastMessage)
-            });
-            console.log(this.state);
+            // add broadcast messages to the state
+            this.setState(oldState => {
+              const messages = [...oldState.messages, broadcastMessage];
+              return { ...oldState, messages };
+            })
             break;
           default:
             reject(`Unknown data type ${broadcastMessage.type}`)
