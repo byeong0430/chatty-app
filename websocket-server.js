@@ -22,7 +22,7 @@ const changeItemType = msg => {
 };
 // process incoming data and broadcast back to all clients
 const handleIncomingdata = data => {
-  let newData = changeItemType(JSON.parse(data));
+  const newData = changeItemType(JSON.parse(data));
   // Broadcast new messages to everyone.
   broadcast(JSON.stringify(newData));
 };
