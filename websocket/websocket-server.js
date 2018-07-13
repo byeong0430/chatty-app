@@ -8,7 +8,15 @@ const server = express()
 const WebSocket = require('ws');
 const wss = new WebSocket.Server({ server });
 
-const handleClose = () => console.log('Client disconnected');
+const handleClose = () => {
+  console.log('Client disconnected');
+  // recalculate the number of clients and broadcast to clients
+  const clientData = {
+    type: 'incomingClient',
+    onlineClientNum: wss.clients.size
+  };
+  handleClientInfo(clientData);
+};
 // broadcast messages to all clients
 const broadcast = data => {
   wss.clients.forEach(client => {
@@ -26,17 +34,17 @@ const handleIncomingdata = data => {
   // Broadcast new messages to everyone.
   broadcast(JSON.stringify(newData));
 };
+
 // broadcast client information to all clients
 const handleClientInfo = () => {
-  const clientCount = {
+  const clientData = {
     type: 'incomingClient',
     onlineClientNum: wss.clients.size
   };
-  console.log(`${clientCount.onlineClientNum} user(s) online`);
+  console.log(`${clientData.onlineClientNum} user(s) online`);
   // Broadcast the total number of clients
-  broadcast(JSON.stringify(clientCount));
+  broadcast(JSON.stringify(clientData));
 };
-
 const handleConnection = ws => {
   handleClientInfo();
   ws.on('message', data => handleIncomingdata(data));
