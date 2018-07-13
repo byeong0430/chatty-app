@@ -1,0 +1,13 @@
+nav.navbar {
+  background-color: $theme-color;
+  * {
+    color: white;
+  }
+  .navbar-brand {
+    font-size: 2em;
+    font-weight: bold;
+  }
+  .client-status {
+    font-size: 1.1em;
+  }
+}
