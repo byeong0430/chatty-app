@@ -88,11 +88,16 @@ export default class App extends Component {
     // give each message unique id
     message.id = uuidv4();
     if (message.type === 'postNotification') {
-      // change currentUser to the new username
-      this.setState({ currentUser: message.content });
+      // first get each element of currentUser from this.state
+      const currentUser = { ...this.state.currentUser };
+      // then change the currentUser name
+      currentUser.name = message.content;
+      // setState with the new data
+      this.setState({ currentUser });
       // if user changed the username, ownership of incomingMessage = <new username>
-      message.content = `${this.state.currentUser} changed their name to ${message.content}`;
+      message.content = `${this.state.currentUser.name} changed their name to ${message.content}`;
     }
+    console.log(message);
     // send the new message to the web socket server. make sure to convert obj to json before sending it
     this.socket.send(JSON.stringify(message));
     console.log('Message sent');
@@ -120,6 +125,7 @@ export default class App extends Component {
             this.setState({
               messages: this.state.messages.concat(broadcastMessage)
             });
+            console.log(this.state);
             break;
           default:
             reject(`Unknown data type ${broadcastMessage.type}`)
