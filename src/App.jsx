@@ -114,7 +114,7 @@ export default class App extends Component {
         // convert json broadcast message to obj
         const broadcastMessage = JSON.parse(event.data);
         switch (broadcastMessage.type) {
-          case 'incomingClientCount':
+          case 'incomingClient':
             this.setState({
               onlineClientNum: broadcastMessage.onlineClientNum
             });
