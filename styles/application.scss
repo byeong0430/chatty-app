@@ -1,2 +1,7 @@
 // This is the top-level scss file. Import all other files in here.
-@import 'home';
+@import './partials/_var.scss';
+@import './partials/_layout.scss';
+@import './partials/_navbar.scss';
+@import './partials/_loading-page.scss';
+@import './partials/_message.scss';
+// @import 'home';
