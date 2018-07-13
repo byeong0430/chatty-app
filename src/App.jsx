@@ -97,7 +97,6 @@ export default class App extends Component {
       // if user changed the username, ownership of incomingMessage = <new username>
       message.content = `${this.state.currentUser.name} changed their name to ${message.content}`;
     }
-    console.log(message);
     // send the new message to the web socket server. make sure to convert obj to json before sending it
     this.socket.send(JSON.stringify(message));
     console.log('Message sent');
