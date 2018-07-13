@@ -5,14 +5,20 @@ const convertTextToImg = imgUrl => <img src={imgUrl} />;
 // check if text contains image extensions
 const checkIfImg = data => /\.(jpg|png|gif|svg|ico)$/i.test(data);
 const handleMessageTypes = (msgType, msgContent) => {
-  return (msgType === 'incomingNotification')
-    ? <div className='col message-content notification'><em>!</em> {msgContent}</div>
-    : <div className='col message-content'><em>></em> {msgContent}</div>;
+  // character that a message starts with
+  let textStarter = '>';
+  // default classname
+  let className = 'message-content';
+  (msgType === 'incomingNotification') && (
+    // for notifications, add 'notofication' at the end of the default className
+    className = className + ' notification',
+    // change textStarter from '>' to '!'
+    textStarter = '!'
+  )
+  return <div className={className}><strong>{textStarter}</strong> {msgContent}</div>
 };
-const handleUserName = (name, cssStyle) => {
-  return (name)
-    && <div style={cssStyle} className="col message-username">{name}</div>;
-};
+const handleUserName = (name, cssStyle) => (name) && <div style={cssStyle} className="col message-username">{name}</div>;
+
 export default class Message extends Component {
   constructor(props) {
     super(props);
