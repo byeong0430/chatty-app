@@ -1,12 +1,19 @@
 import React, { Component } from 'react';
 // import initial messages
-import messages from '../data-files/messages.js';
+import initialMsgs from '../data-files/messages.js';
 // import react components
 import ChatBar from './components/ChatBar.jsx';
 import MessageList from './components/MessageList.jsx';
 import Navbar from './components/Navbar.jsx';
 // import npm package
 import uuidv4 from 'uuid/v4';
+
+// rnadomly select a colour
+const addColor = () => {
+  const colors = ['red', 'blue', 'orange', 'green'];
+  const colorIndex = Math.floor(Math.random() * colors.length);
+  return colors[colorIndex];
+};
 
 // function components
 const createLoadingPage = () => {
@@ -17,13 +24,6 @@ const createLoadingPage = () => {
     </section>
   );
 }
-
-const addColor = () => {
-  // if msg type is postNotification, add a colour so that username colour's changed
-  const colors = ['red', 'blue', 'orange', 'green'];
-  const colorIndex = Math.floor(Math.random() * colors.length);
-  return colors[colorIndex];
-};
 
 // when initial messages are ready, return message list and chatbar
 const createMsgComponents = (createNewMessage, { currentUser, messages }) => {
@@ -66,13 +66,11 @@ export default class App extends Component {
   }
   loadInitialMessages = () => {
     setTimeout(() => {
+      const { messages, currentUser: { name } } = initialMsgs;
       this.setState({
         loading: false,
-        currentUser: {
-          name: messages.currentUser.name,
-          color: addColor()
-        },
-        messages: messages.messages
+        currentUser: { name, color: addColor() },
+        messages
       })
     }, 1000);
   }
@@ -84,19 +82,27 @@ export default class App extends Component {
       ? createLoadingPage()
       : createMsgComponents(this.sendNewMessage, { currentUser, messages });
   }
+  // update currentUser in this.state
+  updateCurrentUser = message => {
+    // first get each element of currentUser from this.state
+    const currentUser = { ...this.state.currentUser };
+    // then change the currentUser name
+    currentUser.name = message.content;
+    // setState with the new data
+    this.setState({ currentUser });
+  }
+  handleNotification = msg => {
+    // first, update currentUser in this.state
+    this.updateCurrentUser(msg);
+    // then construct the content of the notification
+    msg.content = `${this.state.currentUser.name} changed their name to ${msg.content}`;
+    return msg;
+  }
   sendNewMessage = message => {
     // give each message unique id
     message.id = uuidv4();
-    if (message.type === 'postNotification') {
-      // first get each element of currentUser from this.state
-      const currentUser = { ...this.state.currentUser };
-      // then change the currentUser name
-      currentUser.name = message.content;
-      // setState with the new data
-      this.setState({ currentUser });
-      // if user changed the username, ownership of incomingMessage = <new username>
-      message.content = `${this.state.currentUser.name} changed their name to ${message.content}`;
-    }
+    // if message is a notification rather than a chat message, execute handleNotification()
+    (message.type === 'postNotification') && this.handleNotification(message);
     // send the new message to the web socket server. make sure to convert obj to json before sending it
     this.socket.send(JSON.stringify(message));
     console.log('Message sent');
@@ -133,10 +139,6 @@ export default class App extends Component {
       resolve('message updated');
     });
   }
-  handleWssMessage = async () => {
-    await this.connectToWss();
-    await this.receiveBroadcastMessage();
-  }
 
   render() {
     return (
@@ -147,11 +149,13 @@ export default class App extends Component {
     );
   }
 
-  componentDidMount() {
-    // connect ws server and handle broadcast messages
-    // IMPORTANT: socket.onmessage() must be within componentDidMount()
-    this.handleWssMessage();
+  componentDidMount = async () => {
     // mimic async api delay when importing messages
-    this.loadInitialMessages();
+    await this.loadInitialMessages();
+
+    // connect ws server and handle broadcast messages
+    await this.connectToWss();
+    // IMPORTANT: socket.onmessage() must be within componentDidMount()
+    await this.receiveBroadcastMessage();
   }
 }

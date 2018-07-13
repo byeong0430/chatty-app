@@ -11,11 +11,11 @@ export default class ChatBar extends Component {
     }
   }
   // update newMessate in this.state based on input value
-  onUsernameChange = event => {
-    this.setState({ username: event.target.value });
+  onUsernameChange = ({ target: { value } }) => {
+    this.setState({ username: value });
   }
-  onMessageChange = event => {
-    this.setState({ newMessage: event.target.value });
+  onMessageChange = ({ target: { value } }) => {
+    this.setState({ newMessage: value });
   }
   // validate form parameters before sending them back to app.jsx
   validateForm = event => {
