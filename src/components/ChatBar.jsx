@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { addEnterKey } from '../../libs/tweet-functions.js';
+import { addEnterKey, autoScrollToBottom } from '../../libs/tweet-functions.js';
 
 export default class ChatBar extends Component {
   constructor(props) {
@@ -81,5 +81,7 @@ export default class ChatBar extends Component {
     addEnterKey(targetInputQuery, 'submit-tweet');
     // after rendering the page, auto focus on the input
     document.querySelector(targetInputQuery).focus();
+    // by default, the message scroll bar is set to top. make sure to scroll down to the bottom
+    autoScrollToBottom('.messages');
   }
 }
