@@ -3,8 +3,9 @@ main.messages {
   font-family: $message-username-font;
   height: 80vh;
   padding: 1rem 0;
-  overflow: auto;
+  overflow-y: auto;
   div.message {
+    word-wrap: break-word;
     margin-bottom: 1.1em;
   }
   div.message-username {
