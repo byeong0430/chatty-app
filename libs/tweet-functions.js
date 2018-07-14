@@ -10,4 +10,9 @@ const addEnterKey = (element, submitBtnId) => {
   })
 };
 
-module.exports = { addEnterKey };
+const autoScrollToBottom = query => {
+  const messages = document.querySelector(query);
+  messages.scrollTo(0, messages.scrollHeight);
+};
+
+module.exports = { addEnterKey, autoScrollToBottom };
