@@ -17,7 +17,7 @@ const handleMessageTypes = (msgType, msgContent) => {
   )
   return <div className={className}><strong>{textStarter}</strong> {msgContent}</div>
 };
-const handleUserName = (name, cssStyle) => (name) && <div style={cssStyle} className="col message-username">{name}</div>;
+const handleUserName = (name, cssStyle) => name && <div style={cssStyle} className="message-username">{name}</div>;
 
 export default class Message extends Component {
   constructor(props) {
