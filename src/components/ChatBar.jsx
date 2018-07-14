@@ -45,25 +45,25 @@ export default class ChatBar extends Component {
   makeForm = () => {
     const { newMessage, placeholder } = this.state;
     return (
-        <form onSubmit={this.validateForm}>
-            <input
-              type='text'
-              name='username'
-              className="col-3 chatbar-username"
-              placeholder={this.props.currentUser.name}
-              onChange={this.onUsernameChange}
-              value={this.state.username}
-            />
-            <input
-              type='text'
-              name='message'
-              className="col-9 chatbar-message"
-              placeholder={placeholder}
-              onChange={this.onMessageChange}
-              value={newMessage}
-            />
-            <input type='submit' id='submit-tweet' />
-        </form>
+      <form onSubmit={this.validateForm}>
+        <input
+          type='text'
+          name='username'
+          className="col-3 chatbar-username"
+          placeholder={this.props.currentUser.name}
+          onChange={this.onUsernameChange}
+          value={this.state.username}
+        />
+        <input
+          type='text'
+          name='message'
+          className="col-9 chatbar-message"
+          placeholder={placeholder}
+          onChange={this.onMessageChange}
+          value={newMessage}
+        />
+        <input type='submit' id='submit-tweet' />
+      </form>
     );
   }
   render() {
@@ -75,6 +75,11 @@ export default class ChatBar extends Component {
   }
   componentDidMount() {
     // submit the form when enter key is detected on input[name="message"]
-    addEnterKey('input[name="message"]', 'submit-tweet');
+    const targetInputQuery = 'input[name="message"]';
+    // add an event listner to the message input so that when a user press 'enter',
+    // the form gets submitted (rather than click on a button)
+    addEnterKey(targetInputQuery, 'submit-tweet');
+    // after rendering the page, auto focus on the input
+    document.querySelector(targetInputQuery).focus();
   }
 }
