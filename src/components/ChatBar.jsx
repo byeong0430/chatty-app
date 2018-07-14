@@ -45,25 +45,25 @@ export default class ChatBar extends Component {
   makeForm = () => {
     const { newMessage, placeholder } = this.state;
     return (
-      <form onSubmit={this.validateForm}>
-        <input
-          type='text'
-          name='username'
-          className="chatbar-username"
-          placeholder={this.props.currentUser.name}
-          onChange={this.onUsernameChange}
-          value={this.state.username}
-        />
-        <input
-          type='text'
-          name='message'
-          className="chatbar-message"
-          placeholder={placeholder}
-          onChange={this.onMessageChange}
-          value={newMessage}
-        />
-        <input type='submit' id='submit-tweet' />
-      </form>
+        <form onSubmit={this.validateForm}>
+            <input
+              type='text'
+              name='username'
+              className="col-3 chatbar-username"
+              placeholder={this.props.currentUser.name}
+              onChange={this.onUsernameChange}
+              value={this.state.username}
+            />
+            <input
+              type='text'
+              name='message'
+              className="col-9 chatbar-message"
+              placeholder={placeholder}
+              onChange={this.onMessageChange}
+              value={newMessage}
+            />
+            <input type='submit' id='submit-tweet' />
+        </form>
     );
   }
   render() {
