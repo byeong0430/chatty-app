@@ -13,7 +13,7 @@ A real-time chat app using ReactJS and Web Socket.
 * [webpack-dev-server](https://github.com/webpack/webpack-dev-server)
 
 ### Final Product
-
+!["chatty-message"](https://github.com/byeong0430/chatty-app/blob/master/docs/chatty-message.png)
 
 ### Usage
 
