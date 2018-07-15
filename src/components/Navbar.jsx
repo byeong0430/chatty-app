@@ -6,8 +6,10 @@ export default class Navbar extends Component {
     return (
       <header>
         <nav className="navbar" >
-          <a href="/" className="navbar-brand">Chatty</a>
-          <span className='client-status'>{clientStatus}</span>
+          <div className='container'>
+            <a href="/" className="navbar-brand">Chatty</a>
+            <span className='client-status'>{clientStatus}</span>
+          </div>
         </nav>
       </header>
     );

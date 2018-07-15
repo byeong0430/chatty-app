@@ -1,6 +1,10 @@
 nav.navbar {
   font-family: $nav-font;
   background-color: $theme-color;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
   * {
     color: white;
   }

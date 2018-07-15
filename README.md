@@ -1,7 +1,19 @@
 React Boilerplate
 =====================
 
-A minimal and light dev environment for ReactJS.
+A real-time chat app using ReactJS and Web Socket.
+
+### Dependencies
+
+* Express
+* React
+* Babel Polyfill
+* Webpack
+* [babel-loader](https://github.com/babel/babel-loader)
+* [webpack-dev-server](https://github.com/webpack/webpack-dev-server)
+
+### Final Product
+
 
 ### Usage
 
@@ -37,9 +49,3 @@ This boilerplate project includes React ESLint configuration.
 npm run lint
 ```
 
-### Dependencies
-
-* React
-* Webpack
-* [babel-loader](https://github.com/babel/babel-loader)
-* [webpack-dev-server](https://github.com/webpack/webpack-dev-server)
